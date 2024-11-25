@@ -8,7 +8,6 @@ const Dialog = ({ open, onOpenChange, children }) => {
         onOpenChange(false);
       }
     };
-
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [open, onOpenChange]);
@@ -23,18 +22,29 @@ const Dialog = ({ open, onOpenChange, children }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-100/70 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div className="relative w-full max-w-lg rounded-lg bg-white p-6 shadow-lg animate-in fade-in zoom-in duration-300">
-        {children}
+      <div className="group select-none w-[350px] relative rounded-xl bg-gradient-to-br from-white/90 to-gray-50/90 p-6 shadow-2xl border border-gray-100 animate-in fade-in zoom-in duration-300">
+        <div className="relative z-10">{children}</div>
+        <button
+          className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity duration-200"
+          onClick={() => onOpenChange(false)}
+        >
+          <X className="h-4 w-4 text-gray-600" />
+          <span className="sr-only">Fermer</span>
+        </button>
       </div>
     </div>
   );
 };
 
 const DialogContent = ({ children }) => {
-  return <div className="relative">{children}</div>;
+  return <div className="relative z-10">{children}</div>;
+};
+
+const DialogTitle = ({ children }) => {
+  return <h2 className="text-center p-3 flex-auto justify-center text-2xl font-bold py-4 text-gray-800">{children}</h2>;
 };
 
 const DialogHeader = ({ children }) => {
@@ -42,25 +52,21 @@ const DialogHeader = ({ children }) => {
 };
 
 const DialogFooter = ({ children }) => {
-  return <div className="mt-4 flex justify-end space-x-2">{children}</div>;
-};
-
-const DialogTitle = ({ children }) => {
-  return <h2 className="text-lg font-semibold">{children}</h2>;
+  return <div className="p-4 mt-2 text-center space-x-4">{children}</div>;
 };
 
 const DialogDescription = ({ children }) => {
-  return <p className="text-sm text-gray-500">{children}</p>;
+  return <p className="text-sm text-gray-600 px-4">{children}</p>;
 };
 
 const DialogClose = ({ onClose }) => {
   return (
     <button
-      className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100"
+      className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity duration-200"
       onClick={onClose}
     >
-      <X className="h-4 w-4" />
-      <span className="sr-only">Close</span>
+      <X className="h-4 w-4 text-gray-600" />
+      <span className="sr-only">Fermer</span>
     </button>
   );
 };
@@ -68,9 +74,9 @@ const DialogClose = ({ onClose }) => {
 export {
   Dialog,
   DialogContent,
+  DialogTitle,
   DialogHeader,
   DialogFooter,
-  DialogTitle,
   DialogDescription,
   DialogClose
 };

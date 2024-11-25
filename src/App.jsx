@@ -5,6 +5,11 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Sidebar from './pages/Sidebar';
+import Etudiant from './pages/Etudiant';
+import Examen from './pages/Examen';
+import Matiere from './pages/Matiere';
+import CreateExamen from './pages/CreateExamen';
+import UpdateExamen from './pages/UpdateExamen';
 
 // Composant PrivateRoute pour protéger les routes
 const PrivateRoute = ({ children }) => {
@@ -72,7 +77,46 @@ const App = () => {
                 </PrivateRoute>
               }
             />
-
+            <Route
+          path="/etudiant"
+          element={
+            <PrivateRoute>
+              <Etudiant />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/examen"
+          element={
+            <PrivateRoute>
+              <Examen/>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/matiere"
+          element={
+            <PrivateRoute>
+              <Matiere/>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/examens/createExam"
+          element={
+            <PrivateRoute>
+              <CreateExamen/>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/examens/updateExam/:examen_id"
+          element={
+            <PrivateRoute>
+              <UpdateExamen/>
+            </PrivateRoute>
+          }
+        />
             {/* Route par défaut */}
             <Route
               path="/"

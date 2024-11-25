@@ -17,6 +17,51 @@ const DashboardIcon = ({ isActive }) => (
   </svg>
 );
 
+const StudentIcon = ({ isActive }) => (
+  <svg
+    className="size-5"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    fill={isActive ? "currentColor" : "none"}
+    stroke="currentColor"
+    strokeWidth={1.5}
+  >
+    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z" />
+    <path d="M12 6a3 3 0 100 6 3 3 0 000-6z" />
+    <path d="M12 14c-3.783 0-7 1.105-7 3v2h14v-2c0-1.895-3.217-3-7-3z" />
+  </svg>
+);
+
+const ExamIcon = ({ isActive }) => (
+  <svg
+    className="size-5"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    fill={isActive ? "currentColor" : "none"}
+    stroke="currentColor"
+    strokeWidth={1.5}
+  >
+    <path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" />
+    <path d="M7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z" />
+  </svg>
+);
+
+const SubjectIcon = ({ isActive }) => (
+  <svg
+    className="size-5"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    fill={isActive ? "currentColor" : "none"}
+    stroke="currentColor"
+    strokeWidth={1.5}
+  >
+    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z" />
+    <path d="M12 6a3 3 0 100 6 3 3 0 000-6z" />
+    <path d="M12 14c-3.783 0-7 1.105-7 3v2h14v-2c0-1.895-3.217-3-7-3z" />
+    <path d="M17 8v4h-3v3h3v4h2v-4h3v-3h-3v-4z" />
+  </svg>
+);
+
 const ProfileIcon = ({ isActive }) => (
   <svg 
     className="size-5" 
@@ -46,7 +91,9 @@ const LogoutIcon = () => (
 
 const NavItem = ({ to, icon, label, onClick }) => {
   const location = useLocation();
-  const isActive = location.pathname === to;
+  const isActive = to === '/' 
+    ? location.pathname === '/' 
+    : location.pathname.startsWith(to);
   
   const baseClasses = "flex w-full items-center gap-3 px-4 py-3 font-medium rounded-lg transition-all duration-200 ease-in-out text-sm";
   const stateClasses = isActive
@@ -83,10 +130,24 @@ function Sidebar() {
   const navigations = [
     {
       href: '/',
-      name: 'Tableau de bord',
+      name: 'Dashboard',
       icon: (isActive) => <DashboardIcon isActive={isActive} />
     },
-    // Ajoutez d'autres éléments de navigation ici
+    {
+      href: '/etudiant',
+      name: 'Etudiant',
+      icon: (isActive) => <StudentIcon isActive={isActive} />
+    },
+    {
+      href: '/examen',
+      name: 'Examen',
+      icon: (isActive) => <ExamIcon isActive={isActive} />
+    },
+    {
+      href: '/matiere',
+      name: 'Matière',
+      icon: (isActive) => <SubjectIcon isActive={isActive} />
+    },
   ];
 
   const handleLogout = async () => {
@@ -94,13 +155,13 @@ function Sidebar() {
       await logout();
       navigate('/login');
     } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
+      console.error('Error logging out:', error);
     }
   };
 
   return (
     <aside className="fixed top-0 left-0 h-screen w-64 bg-gradient-to-b from-gray-50 to-white p-4 border-r border-gray-200">
-      {/* Logo et titre */}
+      {/* Logo and title */}
       <div className="mb-8 px-2">
         <Link to="/" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-green-600 flex items-center justify-center">
@@ -112,7 +173,7 @@ function Sidebar() {
         </Link>
       </div>
 
-      {/* Navigation principale */}
+      {/* Main navigation */}
       <nav className="flex-1 space-y-1">
         <div className="mb-2 px-4 text-xs font-semibold text-gray-400 uppercase">
           Menu Principal
@@ -130,7 +191,7 @@ function Sidebar() {
         </ul>
       </nav>
 
-      {/* Section utilisateur */}
+      {/* User section */}
       <div className="pt-4 border-t border-gray-200">
         <div className="mb-2 px-4 text-xs font-semibold text-gray-400 uppercase">
           Paramètres
@@ -140,13 +201,13 @@ function Sidebar() {
             <NavItem
               to="/profile"
               icon={(isActive) => <ProfileIcon isActive={isActive} />}
-              label={user?.name || 'Profil'}
+              label={user?.name || 'Profile'}
             />
           </li>
           <li>
             <NavItem
               icon={<LogoutIcon />}
-              label="Déconnexion"
+              label="Se déconnecter"
               onClick={handleLogout}
             />
           </li>

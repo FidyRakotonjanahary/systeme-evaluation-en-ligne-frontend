@@ -1,7 +1,7 @@
 // contexts/AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import authService from '../services/AuthService.jsx';
-
+import { Loader2 } from 'lucide-react';
 // Créer le contexte avec une valeur initiale par défaut
 export const AuthContext = createContext({
   user: null,
@@ -84,7 +84,9 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!isLoading ? children : <div>Chargement...</div>}
+      {!isLoading ? children : <div className="flex justify-center items-center h-[600px]">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>}
     </AuthContext.Provider>
   );
 };

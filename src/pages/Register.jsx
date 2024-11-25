@@ -19,7 +19,7 @@ const Register = () => {
     e.preventDefault();
     try {
       await register(name, email, password);
-      navigate('/profile', { replace: true });
+      navigate('/login', { replace: true });
     } catch (err){
       if(err.response && err.response.data) {
         setError(err.response.data.message);    
@@ -88,6 +88,8 @@ const Register = () => {
                   id="email"
                   name="email"
                   type="email"
+                  pattern=".+@gmail.com"
+            title="Veuillez entrer une adresse Gmail valide"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required

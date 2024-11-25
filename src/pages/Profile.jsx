@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import AuthService from '../services/authService'; // Importez le service d'authentification
+import AuthService from '../services/authService';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "../components/ui/dialog";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -15,32 +16,29 @@ import {
   ChevronRight, 
   Mail, 
   User,
-  Key,
-  Eye,
-  EyeOff,
+  Trash2,
   CheckCircle,
   AlertCircle,
-  Loader // Ajout de l'icône de chargement
+  Loader
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {ConfirmDelete} from '../components/ui/confirmDelete';
 
 const Profile = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [openModal, setOpenModal] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const Navigate=useNavigate();
+  const navigate = useNavigate();
   const [userData, setUserData] = useState({
     name: '',
     email: '',
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    confirmDelete: ''
   });
   const [errors, setErrors] = useState({});
 
-  // Récupération du profil utilisateur au chargement du composant
   useEffect(() => {
     fetchUserProfile();
   }, []);
@@ -60,7 +58,7 @@ const Profile = () => {
       }
     } catch (error) {
       if (error.response?.status === 401) {
-        
+        handleAuthError(error);
       } else {
         setError('Erreur lors du chargement du profil');
       }
@@ -71,74 +69,75 @@ const Profile = () => {
 
   const handleAuthError = (error) => {
     console.error('Erreur d\'authentification:', error);
-    AuthService.logout(); // Utilisation de la méthode logout du service
-    setError('Session expirée. Veuillez vous reconnecter.');
-    // Redirection vers la page de connexion
-    //Navigate('/login');
+    AuthService.logout();
+    navigate('/login', { replace: true }); // Force navigation with replace
   };
 
   const handleUpdate = async (type) => {
     try {
-      let endpoint = '';
-      let data = {};
+      setErrors({});
       
-      switch(type) {
-        case 'name':
-          endpoint = '/update-name';
-          data = { name: userData.name };
-          break;
-        case 'email':
-          endpoint = '/update-email';
-          data = { email: userData.email };
-          break;
-        case 'password':
-          if (!validatePassword()) return;
-          endpoint = '/update-password';
-          data = {
-            currentPassword: userData.currentPassword,
-            newPassword: userData.newPassword
-          };
-          break;
-        default:
+      let response;
+      if (type === 'name') {
+        response = await AuthService.updateProfile('/update-name', { name: userData.name });
+      } else if (type === 'email') {
+        if (!validateEmail(userData.email)) {
+          setErrors({ email: 'Email invalide' });
           return;
+        }
+        response = await AuthService.updateProfile('/update-email', { email: userData.email });
       }
 
-      const response = await AuthService.updateProfile(endpoint, data);
-
-      setSuccess(`${type === 'name' ? 'Nom' : type === 'email' ? 'Email' : 'Mot de passe'} mis à jour avec succès !`);
+      setSuccess(`${type === 'name' ? 'Nom' : 'Email'} mis à jour avec succès !`);
       setOpenModal('');
-      
-      if (type === 'password') {
-        setUserData(prev => ({
-          ...prev,
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
-        }));
-      } else {
-        fetchUserProfile();
-      }
-
+      fetchUserProfile();
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       if (error.response?.status === 401) {
         handleAuthError(error);
+        return; // Stop execution after handling auth error
       } else {
         setErrors({ submit: error.response?.data?.message || 'Une erreur est survenue. Veuillez réessayer.' });
       }
     }
   };
 
-  const validatePassword = () => {
-    const newErrors = {};
-    if (userData.newPassword.length < 8) {
-      newErrors.newPassword = 'Le mot de passe doit contenir au moins 8 caractères';
+  const handleDeleteAccount = async () => {
+    try {
+      await AuthService.deleteAccount();
+      AuthService.logout();
+      // Force immediate navigation
+      window.location.reload();  
+      } catch (error) {
+      setLoading(false); // Stop loading if there's an error
+      if (error.response?.status === 401) {
+        handleAuthError(error);
+      } else {
+        setErrors({ submit: 'Erreur lors de la suppression du compte' });
+        setIsModalOpen(false); // Close the modal on error
+      }
     }
-    if (userData.newPassword !== userData.confirmPassword) {
-      newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  };
+  useEffect(() => {
+    const loadingTimeout = setTimeout(() => {
+      if (loading) {
+        setLoading(false);
+        setError('Le chargement a pris trop de temps. Veuillez rafraîchir la page.');
+      }
+    }, 100); // 1 seconds timeout
+
+    return () => clearTimeout(loadingTimeout);
+  }, [loading]);
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader className="h-8 w-8 animate-spin text-green-600" />
+      </div>
+    );
+  }
+
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   if (loading) {
@@ -148,35 +147,32 @@ const Profile = () => {
       </div>
     );
   }
+
   return (
-    <div className="max-w-2xl mx-auto p-6 rounded-lg">
+    <div className="flex-1 ml-64 p-6">
       <h1 className="text-2xl font-bold mb-4 text-black">Informations personnelles</h1>
       <p className="text-gray-600 mb-8">
-        Gérez vos informations personnelles et paramètres de sécurité.
+        Gérez vos informations personnelles.
       </p>
 
       {success && (
         <Alert className="mb-4 bg-green-50">
           <CheckCircle className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-600">
-            {success}
-          </AlertDescription>
+          <AlertDescription className="text-green-600">{success}</AlertDescription>
         </Alert>
       )}
 
       {error && (
         <Alert className="mb-4 bg-red-50">
           <AlertCircle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-600">
-            {error}
-          </AlertDescription>
+          <AlertDescription className="text-red-600">{error}</AlertDescription>
         </Alert>
       )}
 
       {/* Nom */}
       <div 
         onClick={() => setOpenModal('name')}
-        className="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer rounded-lg mb-2 text-black"
+        className="flex items-center justify-between p-4 hover:bg-green-50 cursor-pointer rounded-lg mb-2 text-black"
       >
         <div>
           <h2 className="font-semibold mb-1">Nom</h2>
@@ -188,7 +184,7 @@ const Profile = () => {
       {/* Email */}
       <div 
         onClick={() => setOpenModal('email')}
-        className="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer rounded-lg mb-2 text-black"
+        className="flex items-center justify-between p-4 hover:bg-green-50 cursor-pointer rounded-lg mb-2 text-black"
       >
         <div>
           <h2 className="font-semibold mb-1">Email</h2>
@@ -197,17 +193,27 @@ const Profile = () => {
         <ChevronRight className="text-gray-500" />
       </div>
 
-      {/* Mot de passe */}
+      {/* Supprimer le compte */}
       <div 
-        onClick={() => setOpenModal('password')}
-        className="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer rounded-lg text-black"
+        onClick={() => setIsModalOpen(true)}
+        className="flex items-center justify-between p-4 hover:bg-red-50 cursor-pointer rounded-lg text-red-600"
       >
         <div>
-          <h2 className="font-semibold mb-1">Mot de passe</h2>
-          <p className="text-gray-600 text-sm">Modifiez votre mot de passe</p>
+          <h2 className="font-semibold mb-1">Supprimer le compte</h2>
+          <p className="text-red-500 text-sm">Cette action est irréversible</p>
         </div>
-        <ChevronRight className="text-gray-500" />
+        <Trash2 className="text-red-500" />
       </div>
+         {/* Nouveau composant de confirmation */}
+     {/* Le modal de confirmation */}
+     {isModalOpen && (
+        <ConfirmDelete
+          title="Supprimer le compte ?"
+          message="Cette action est irréversible"
+          onConfirm={handleDeleteAccount}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      )}
 
       {/* Modal Nom */}
       <Dialog open={openModal === 'name'} onOpenChange={() => setOpenModal('')}>
@@ -257,80 +263,8 @@ const Profile = () => {
                 onChange={(e) => setUserData({...userData, email: e.target.value})}
                 className="text-gray-900"
               />
-            </div>
-            {errors.submit && (
-              <p className="text-sm text-red-500">{errors.submit}</p>
-            )}
-            <DialogFooter>
-              <Button type="submit" className="bg-green-600 text-white hover:bg-green-700">
-                Enregistrer
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal Mot de passe */}
-      <Dialog open={openModal === 'password'} onOpenChange={() => setOpenModal('')}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="text-gray-900">Modifier le mot de passe</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={(e) => { e.preventDefault(); handleUpdate('password'); }} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="currentPassword" className="flex items-center gap-2 text-gray-700">
-                <Key className="h-4 w-4" /> Mot de passe actuel
-              </Label>
-              <div className="relative">
-                <Input
-                  id="currentPassword"
-                  type={showPassword ? 'text' : 'password'}
-                  value={userData.currentPassword}
-                  onChange={(e) => setUserData({...userData, currentPassword: e.target.value})}
-                  className="text-gray-900 pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                >
-                  {showPassword ? 
-                    <EyeOff className="h-4 w-4 text-gray-500" /> : 
-                    <Eye className="h-4 w-4 text-gray-500" />
-                  }
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="newPassword" className="flex items-center gap-2 text-gray-700">
-                <Key className="h-4 w-4" /> Nouveau mot de passe
-              </Label>
-              <Input
-                id="newPassword"
-                type="password"
-                value={userData.newPassword}
-                onChange={(e) => setUserData({...userData, newPassword: e.target.value})}
-                className="text-gray-900"
-              />
-              {errors.newPassword && (
-                <p className="text-sm text-red-500">{errors.newPassword}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="flex items-center gap-2 text-gray-700">
-                <Key className="h-4 w-4" /> Confirmer le mot de passe
-              </Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={userData.confirmPassword}
-                onChange={(e) => setUserData({...userData, confirmPassword: e.target.value})}
-                className="text-gray-900"
-              />
-              {errors.confirmPassword && (
-                <p className="text-sm text-red-500">{errors.confirmPassword}</p>
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email}</p>
               )}
             </div>
             {errors.submit && (
@@ -344,6 +278,8 @@ const Profile = () => {
           </form>
         </DialogContent>
       </Dialog>
+      
+      
     </div>
   );
 };

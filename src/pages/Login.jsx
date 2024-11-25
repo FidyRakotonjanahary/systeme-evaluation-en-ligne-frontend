@@ -69,6 +69,8 @@ const Login = () => {
                   id="email"
                   name="email"
                   type="email"
+                  pattern=".+@gmail.com"
+                  title="Veuillez entrer une adresse Gmail valide"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -119,7 +121,7 @@ const Login = () => {
       
     </main>
     <footer className="w-full bg-gray-800 text-white py-2 text-center fixed bottom-0 left-0 right-0">
-          <p>&copy; 2023 Authentication App. All rights reserved.</p>
+          <p>&copy; 2024 EvalPro Application.</p>
         </footer>
     </div>
   );
