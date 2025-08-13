@@ -129,11 +129,6 @@ function Sidebar() {
 
   const navigations = [
     {
-      href: '/',
-      name: 'Dashboard',
-      icon: (isActive) => <DashboardIcon isActive={isActive} />
-    },
-    {
       href: '/etudiant',
       name: 'Etudiant',
       icon: (isActive) => <StudentIcon isActive={isActive} />

@@ -224,17 +224,17 @@ const Matiere = () => {
         <button
     className={`
         flex items-center 
-        font-bold py-2 px-4 rounded 
+         py-0 px-2 rounded 
         ${!selectedNiveauId || !selectedParcoursId 
-            ? 'bg-gray-400 text-white cursor-not-allowed' 
-            : 'bg-green-500 hover:bg-green-700 text-white'
+            ? 'bg-gray-100 text-gray-200 cursor-not-allowed' 
+            : 'text-indigo-800'
         }
     `}
     onClick={() => setShowAddForm(!showAddForm)}
     disabled={!selectedNiveauId || !selectedParcoursId}
 >
-    <PlusCircle className="h-5 w-5 mr-2" />
-    Nouveau
+    <PlusCircle className="h-6 w-5 mr-2" />
+    Nouvelle matière
 </button>
       </div>
     </div>
@@ -252,81 +252,82 @@ const Matiere = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-        <ul>
+  <ul>
     {assignedMatieres.map((matiere) => (
-      <React.Fragment key={matiere.matiere_id}>
-      
-    <li key={matiere.matiere_id} className="flex items-center justify-between py-2">
-      {editingMatiereId === matiere.matiere_id ? (
+      <li 
+        key={matiere.matiere_id} 
+        className="flex items-center justify-between py-2"
+      >
+        {editingMatiereId === matiere.matiere_id ? (
+          <input
+            type="text"
+            className="w-full mr-4 p-2 border rounded"
+            defaultValue={matiere.nom_matiere}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                updateMatiere(matiere.matiere_id, e.target.value);
+                setEditingMatiereId(null);
+              }
+            }}
+            onBlur={(e) => {
+              updateMatiere(matiere.matiere_id, e.target.value);
+              setEditingMatiereId(null);
+            }}
+          />
+        ) : (
+          <span>{matiere.nom_matiere}</span>
+        )}
+        <div className="flex gap-2">
+          <button
+            className="border-transparent"
+            onClick={() => setEditingMatiereId(matiere.matiere_id)}
+          >
+            <Pencil className="h-6 w-5 mr-4 text-green-600" />
+          </button>
+          <button
+            className="border-transparent"
+            onClick={() => deleteMatiere(matiere.matiere_id)}
+          >
+            <Trash2 className="h-6 w-5 mr-4 text-red-500" />
+          </button>
+        </div>
+      </li>
+    ))}
+    
+    {showAddForm && (
+      <li 
+      className="flex items-center justify-between py-2"
+      key="add-material-input">
         <input
           type="text"
           className="w-full mr-4 p-2 border rounded"
-          defaultValue={matiere.nom_matiere}
+          placeholder="Ajouter une nouvelle matière"
+          value={newMaterialName}
+          onChange={(e) => setNewMaterialName(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              updateMatiere(matiere.matiere_id, e.target.value);
-              setEditingMatiereId(null);
+              addMaterial();
+              setShowAddForm(false);
+              setNewMaterialName('');
             }
           }}
-          onBlur={(e) => {
-            updateMatiere(matiere.matiere_id, e.target.value);
-            setEditingMatiereId(null);
-          }}
         />
-      ) : (
-        <span>{matiere.nom_matiere}</span>
-      )}
-      <div className="flex gap-2">
-        <button
-          className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => setEditingMatiereId(matiere.matiere_id)}
-        >
-          <Pencil className="h-4 w-4" />
-        </button>
-        <button
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => deleteMatiere(matiere.matiere_id)}
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
-      </div>
-    </li>
-    </React.Fragment>
-      ))}
-        <li className="flex items-center justify-between py-2">
-        {showAddForm && (
-  <li className="flex items-center justify-between py-2">
-    <input
-      type="text"
-      className="w-full mr-4 p-2 border rounded"
-      placeholder="Ajouter une nouvelle matière"
-      value={newMaterialName}
-      onChange={(e) => setNewMaterialName(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          addMaterial();
-          setShowAddForm(false);
-          setNewMaterialName('');
-        }
-      }}
-    />
-    <div className="flex gap-2">
-      <button
-        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-        onClick={() => {
-          addMaterial();
-          setShowAddForm(false);
-          setNewMaterialName('');
-        }}
-      >
-        <PlusCircle className="h-4 w-4" />
-      </button>
-    </div>
-  </li>
-)}
-        </li>
-        </ul> 
-        </CardContent>
+        <div className="flex gap-2">
+          <button
+            className="border-transparent"
+            onClick={() => {
+              addMaterial();
+              setShowAddForm(false);
+              setNewMaterialName('');
+            }}
+          >
+            <PlusCircle className="h-6 w-5 mr-4 text-indigo-800" />
+          </button>
+        </div>
+      </li>
+    )}
+  </ul>
+</CardContent>
       </Card>
     )}
   </div>

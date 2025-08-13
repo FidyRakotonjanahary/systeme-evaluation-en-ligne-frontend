@@ -369,18 +369,20 @@ const StudentTable = ({ students, onEdit, onDelete }) => {// Vérifier les donn�
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Matricule</TableHead>
-          <TableHead>Nom</TableHead>
-          <TableHead>Prénom</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Parcours</TableHead>
-          <TableHead>Niveau</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+        <TableHead className="text-indigo-800 font-bold">Matricule</TableHead>
+    <TableHead className="text-indigo-800 font-bold">Nom</TableHead>
+    <TableHead className="text-indigo-800 font-bold">Prénom</TableHead>
+    <TableHead className="text-indigo-800 font-bold">Email</TableHead>
+    <TableHead className="text-indigo-800 font-bold">Parcours</TableHead>
+    <TableHead className="text-indigo-800 font-bold">Niveau</TableHead>
+    <TableHead className="text-center text-indigo-800 font-bold">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {students.map((student) => (
-          <TableRow key={student.etudiant_id}>
+          <TableRow
+          className="hover:bg-green-50"
+          key={student.etudiant_id}>
             <TableCell>{student.matricule}</TableCell>
             <TableCell>{student.nom}</TableCell>
             <TableCell>{student.prenom}</TableCell>
@@ -602,7 +604,9 @@ const filteredStudents = students.filter((student) => {
                   Recherche en cours...
                 </Button>
               ) : (
-                <Button onClick={() => setShowAddDialog(true)}>
+                <Button
+                className="text-indigo-800"
+                onClick={() => setShowAddDialog(true)}>
                   <UserPlus className="h-4 w-4 mr-2" />
                   Ajouter
                 </Button>
@@ -619,7 +623,12 @@ const filteredStudents = students.filter((student) => {
         )}
         
         <CardContent>
-          <ScrollArea className="h-[600px]">
+          <ScrollArea className="h-[600px] pr-4 
+              scrollbar-thin 
+              scrollbar-track-white 
+              scrollbar-thumb-gray-800 
+              hover:scrollbar-thumb-gray-600"
+            type="always">
             {isLoading ? (
               <div className="flex justify-center items-center h-[600px]">
                 <Loader2 className="h-8 w-8 animate-spin" />

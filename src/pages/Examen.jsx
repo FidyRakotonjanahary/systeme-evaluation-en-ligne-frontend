@@ -290,9 +290,8 @@ const Examens = () => {
   };
 
   return (
-    <div className="flex-1 ml-64 p-6">
-      {/* En-tête */}
-      <div className="flex justify-between items-center">
+        <div className="flex-1 ml-64 p-6 ">
+          <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Gestion des examens</h1>
           <div className="flex items-center gap-2 text-gray-500">
@@ -316,8 +315,10 @@ const Examens = () => {
           >
             <RefreshCcw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           </Button>
-          <Button onClick={() => navigate('/examens/createExam')}>
-            <Plus className="h-4 w-4 mr-2" />
+          <Button 
+          className="text-indigo-800"
+          onClick={() => navigate('/examens/createExam')}>
+            <Plus className="h-6 w-5 mr-2" />
             Nouvel examen
           </Button>
         </div>
@@ -464,7 +465,14 @@ const Examens = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[600px] pr-4">
+        <ScrollArea
+              className="h-[600px] pr-4 
+              scrollbar-thin 
+              scrollbar-track-white 
+              scrollbar-thumb-gray-800 
+              hover:scrollbar-thumb-gray-600"
+            type="always"
+           >
             {isLoading ? (
               <div className="flex justify-center items-center h-32">
                 <Loader2 className="h-8 w-8 animate-spin" />
@@ -493,10 +501,15 @@ const Examens = () => {
       )}
    {sortedAndFilteredExamens.map((examen) => (
   <Card 
-    key={examen.examen_id} 
+    key={examen.examen_id}
+    style={{
+      backgroundColor: selectedExamens.has(examen.examen_id) 
+        ? 'rgb(240, 253, 244)' // Vert très clair correspondant à bg-green-50
+        : 'white'
+    }} 
     className={`p-4 transition-all duration-300 cursor-pointer ${
       selectedExamens.has(examen.examen_id) 
-        ? 'ring-1 ring-gray-200 bg-gray-50 scale-[1.01] shadow-md'
+        ? 'ring-2 ring-green-200 bg-green-50 scale-[1.01] shadow-md'
         : 'hover:shadow-md hover:scale-[1.005]'
     }`}
     onClick={() => {
@@ -542,7 +555,7 @@ const Examens = () => {
         <Button
           variant={examen.est_actif ? "destructive" : "success"}
           size="sm"
-          className="transition-colors"
+          className="transition-colors text-indigo-800"
           onClick={(e) => {
             e.stopPropagation();
             handlePublishToggle(examen.est_actif, examen.examen_id);
@@ -564,14 +577,13 @@ const Examens = () => {
         <Button
           variant="outline"
           size="sm"
-          className="border-transparent hover:bg-green-600"
+          className="border-transparent"
           onClick={(e) => {
             e.stopPropagation();
             navigate(`/examens/updateExam/${examen.examen_id}`);
           }}
         >
-          <Edit2 className="h-4 w-4 mr-2" />
-          Éditer
+          <Edit2 className="h-4 w-4 text-green-600" />
         </Button>
 
         <Button
@@ -581,9 +593,9 @@ const Examens = () => {
             e.stopPropagation();
             handleDeleteOne(examen.examen_id);
           }}
-          className="hover:bg-red-600"
+          className="border-transparent"
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-4 w-4 text-red-500" />
         </Button>
       </div>
     </div>
@@ -602,6 +614,7 @@ const Examens = () => {
               </div>
             )}
           </ScrollArea>
+      
         </CardContent>
       </Card>
     </div>
